@@ -1,0 +1,5 @@
+{
+  "name": "client",
+  "description": "Frontend React client for MERN stack application",
+  "requestFramePermissions": []
+}

@@ -1,0 +1,52 @@
+[
+  {
+    "name": "Adnan",
+    "accountNumber": 111111,
+    "pin": "1234",
+    "balance": 500,
+    "transactions": []
+  },
+  {
+    "name": "saan",
+    "accountNumber": 963771,
+    "pin": "8796",
+    "balance": 8000,
+    "transactions": [
+      {
+        "type": "Deposit",
+        "amount": 10000
+      },
+      {
+        "type": "Withdraw",
+        "amount": 2000
+      }
+    ]
+  },
+  {
+    "name": "ghf",
+    "accountNumber": 127012,
+    "pin": "6754",
+    "balance": 0,
+    "transactions": []
+  },
+  {
+    "name": "Masum",
+    "accountNumber": 394250,
+    "pin": "$2b$20$JkbNKaYMfCKiCaV9nlZ7W.z0STOTy9BStZaibR6u8A/jL46/jNv6O",
+    "balance": 664398,
+    "transactions": [
+      {
+        "type": "Deposit",
+        "amount": 697854
+      },
+      {
+        "type": "Withdraw",
+        "amount": 10000
+      },
+      {
+        "type": "Withdraw",
+        "amount": 23456
+      }
+    ]
+  }
+]
