@@ -171,9 +171,22 @@ export const deleteCourse = async (req, res) => {
 
 export const getAllCourses = async (req, res) => {
   try {
-    // Populate the 'teacher' field with 'fullName' and 'email' from the Teacher profile
-    // This will only work if there are Teacher documents whose _id matches the 'teacher' field in Course
-    const courses = await Course.find().populate('teacher', 'fullName email');
+    const { search } = req.query; // Get the search term from query parameters
+        let query = {}; // Initialize an empty query object
+
+        if (search) {
+            // If a search term exists, build the search query
+            const searchRegex = new RegExp(search, 'i'); // Case-insensitive regex
+
+            query = {
+                $or: [ // Search across multiple fields
+                    { courseName: { $regex: searchRegex } },
+                    { courseCode: { $regex: searchRegex } },
+                    // Add other fields you want to search by, e.g., { department: { $regex: searchRegex } }
+                ]
+            };
+        }
+    const courses = await Course.find(query).populate('teacher', 'fullName email');
     res.status(200).json({ success: true, courses });
   } catch (err) {
     console.error('❌ Error fetching courses:', err.message);

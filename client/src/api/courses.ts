@@ -23,10 +23,13 @@ export const coursesApi = {
     /**
      * Fetch all courses.
      */
-    getAll: (): Promise<ApiResponse<{ courses: Course[] }>> => {
-        // Note: Your backend might return { success: true, courses: [...] } 
-        // instead of just data. Adjusting generic type to match potential response structure.
-        return apiClient<{ courses: Course[] }>(COURSES_URL);
+    getAll: (searchTerm?:string): Promise<ApiResponse<{ courses: Course[] }>> => {
+        let url = COURSES_URL;
+        if(searchTerm){
+            url += `?search=${encodeURIComponent(searchTerm)}`;
+        }
+        //return apiClient<{ courses: Course[] }>(url);
+        return apiClient(url);
     },
 
     /**
