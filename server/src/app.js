@@ -3,7 +3,7 @@ import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
 import cooKieParser from 'cookie-parser';
-//import indexRoutes from './routes/index.js';
+import eventRoutes from './routes/event.js';
 
 
 import courseRoutes from './routes/courses.js';
@@ -30,7 +30,7 @@ console.log("✅ Auth route file loaded successfully!");
 //Define routes
 app.use('/api/auth', authRoute);
 app.use('/api/course', courseRoutes);
-//app.use('/api/dashboard', dashboardRoutes);
+app.use("/api/events", eventRoutes);
 
 app.use((req, res) => {
     res.status(404).json({ success: false, message: "Route not found" });

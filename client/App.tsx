@@ -5,6 +5,7 @@ import { LandingPage } from './src/pages/LandingPage';
 import { AuthPage } from './src/pages/AuthPage';
 import { HomePage } from './src/pages/HomePage';
 import { CoursesPage } from './src/pages/CoursesPage';
+import EventPage from './src/pages/EventPage';
 import { User } from './src/api/auth';
 
 function App() {
@@ -61,6 +62,9 @@ function App() {
             break;
         case '/courses':
             pageContent = <CoursesPage user={user} />;
+            break;
+        case '/event':
+            pageContent = <EventPage user={user} />;
             break;
         default:
             pageContent = (

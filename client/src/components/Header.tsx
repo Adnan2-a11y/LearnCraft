@@ -30,6 +30,8 @@ export const Header: React.FC<HeaderProps> = ({ user, onNavigate, onLogout }) =>
                 <nav className="hidden md:flex space-x-8">
                     <button onClick={() => onNavigate('/')} className="text-gray-600 hover:text-blue-600 font-medium transition-colors">Home</button>
                     <button onClick={() => onNavigate('/courses')} className="text-gray-600 hover:text-blue-600 font-medium transition-colors">Courses</button>
+                    {/* New: Add button for Events Page */}
+                    <button onClick={() => onNavigate('/event')} className="text-gray-600 hover:text-blue-600 font-medium transition-colors">Events</button>
                     {user && (
                         <button onClick={() => onNavigate('/dashboard')} className="text-gray-600 hover:text-blue-600 font-medium transition-colors">Dashboard</button>
                     )}
