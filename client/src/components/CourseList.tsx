@@ -62,7 +62,7 @@ export const CourseList: React.FC<CourseListProps> = ({ courses, userRole, onDel
                     </div>
                     <div className="bg-gray-50 px-6 py-4 border-t border-gray-100 flex justify-between items-center">
                         <button className="text-blue-600 hover:text-blue-800 text-sm font-semibold transition-colors">
-                            View Details
+                            Enroll Now
                         </button>
                         {userRole === 'teacher' && onDelete && (
                             <button 

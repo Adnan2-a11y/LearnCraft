@@ -1,14 +1,14 @@
 import Course from '../models/Course.js';
 import mongoose from 'mongoose'; // Import mongoose for ObjectId validation
 
-export const addCourse = async (req, res) => {
+export const addCourse = async(req, res) => {
     console.log('addCourse Controller: req.user:', req.user ? req.user.username : 'Undefined');
     // CRUCIAL LOG: req.user.profile will now be undefined, but req.user._id will be available
-    console.log('addCourse Controller: req.user._id:', req.user ? req.user._id : 'Undefined'); 
+    console.log('addCourse Controller: req.user._id:', req.user ? req.user._id : 'Undefined');
     try {
         // FIX: Use req.user._id directly as the teacher's ID,
         // since the User document itself contains the teacher's identifying info
-        const teacherProfileId = req.user._id; 
+        const teacherProfileId = req.user._id;
         const { courseCode, courseName, credit, department, semester } = req.body;
 
         // Basic validation for required fields
@@ -37,11 +37,11 @@ export const addCourse = async (req, res) => {
             teacher: teacherProfileId, // Link to the authenticated user's _id
         });
         await newCourse.save();
-        
+
         // IMPORTANT: This populate will only work if there's a document in the 'teachers' collection
         // whose _id matches teacherProfileId (req.user._id) AND it contains 'fullName' and 'email'.
         // If not, the 'teacher' field in the response will be null or only contain the ID.
-        await newCourse.populate('teacher', 'fullName email'); 
+        await newCourse.populate('teacher', 'fullName email');
 
         res.status(201).json({
             success: true,
@@ -66,7 +66,7 @@ export const addCourse = async (req, res) => {
     }
 };
 
-export const updateCourse = async (req, res) => {
+export const updateCourse = async(req, res) => {
     try {
         const { id } = req.params;
         // FIX: Use req.user._id directly
@@ -130,7 +130,7 @@ export const updateCourse = async (req, res) => {
     }
 };
 
-export const deleteCourse = async (req, res) => {
+export const deleteCourse = async(req, res) => {
     try {
         const { id } = req.params;
         // FIX: Use req.user._id directly
@@ -169,45 +169,60 @@ export const deleteCourse = async (req, res) => {
     }
 };
 
-export const getAllCourses = async (req, res) => {
-  try {
-    const { search } = req.query; // Get the search term from query parameters
-        let query = {}; // Initialize an empty query object
+export const getAllCourses = async(req, res) => {
+    try {
+        const { search, department, semester, credit, page = 1, limit = 10 } = req.query;
+        let query = {};
 
         if (search) {
-            // If a search term exists, build the search query
-            const searchRegex = new RegExp(search, 'i'); // Case-insensitive regex
-
-            query = {
-                $or: [ // Search across multiple fields
-                    { courseName: { $regex: searchRegex } },
-                    { courseCode: { $regex: searchRegex } },
-                    // Add other fields you want to search by, e.g., { department: { $regex: searchRegex } }
-                ]
-            };
+            query.$or = [
+                { courseCode: { $regex: search, $options: 'i' } },
+                { courseName: { $regex: search, $options: 'i' } }
+            ];
         }
-    const courses = await Course.find(query).populate('teacher', 'fullName email');
-    res.status(200).json({ success: true, courses });
-  } catch (err) {
-    console.error('❌ Error fetching courses:', err.message);
-    res.status(500).json({ success: false, message: 'Server error while fetching courses' });
-  }
+        if (department) query.department = department;
+        if (semester) query.semester = semester;
+        if (credit && credit !== '') query.credit = parseInt(credit);
+
+        const skip = (parseInt(page) - 1) * parseInt(limit); // Ensure proper parsing for pagination
+
+        const courses = await Course.find(query)
+            .populate('teacher', 'fullName email')
+            .sort({ courseCode: 1 })
+            .skip(skip)
+            .limit(parseInt(limit));
+
+        const total = await Course.countDocuments(query);
+
+        res.status(200).json({
+            success: true,
+            data: {
+                courses,
+                total,
+                page: parseInt(page),
+                pages: Math.ceil(total / parseInt(limit))
+            }
+        });
+    } catch (err) {
+        console.error('❌ Error fetching courses:', err.message);
+        res.status(500).json({ success: false, message: 'Server error while fetching courses' });
+    }
 };
 
-export const getCourseById = async (req, res) => {
-  try {
-    const { id } = req.params;
-    // Populate the 'teacher' field with 'fullName' and 'email' from the Teacher profile
-    // This will only work if there are Teacher documents whose _id matches the 'teacher' field in Course
-    const course = await Course.findById(id).populate('teacher', 'fullName email');
+export const getCourseById = async(req, res) => {
+    try {
+        const { id } = req.params;
+        // Populate the 'teacher' field with 'fullName' and 'email' from the Teacher profile
+        // This will only work if there are Teacher documents whose _id matches the 'teacher' field in Course
+        const course = await Course.findById(id).populate('teacher', 'fullName email');
 
-    if (!course) {
-      return res.status(404).json({ success: false, message: 'Course not found' });
+        if (!course) {
+            return res.status(404).json({ success: false, message: 'Course not found' });
+        }
+
+        res.status(200).json({ success: true, course });
+    } catch (err) {
+        console.error('❌ Error fetching course:', err.message);
+        res.status(500).json({ success: false, message: 'Server error while fetching course' });
     }
-
-    res.status(200).json({ success: true, course });
-  } catch (err) {
-    console.error('❌ Error fetching course:', err.message);
-    res.status(500).json({ success: false, message: 'Server error while fetching course' });
-  }
 };
