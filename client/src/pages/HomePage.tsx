@@ -5,27 +5,32 @@ interface HomePageProps {
     onLogout?: () => void;
 }
 
-export const HomePage: React.FC<HomePageProps> = ({ onNavigate, onLogout }) => {
+export const HomePage: React.FC<HomePageProps> = ({ onNavigate, onLogout, user }) => {
     return (
         <div className="container mx-auto px-4 py-8">
-            <div className="flex justify-between items-center mb-8">
-                <h1 className="text-3xl font-bold text-gray-800">Student Dashboard</h1>
+            <div className="relative bg-gradient-to-r from-blue-600 to-blue-800 text-white p-8 md:p-12 rounded-xl shadow-lg mb-8 flex flex-col md:flex-row items-center justify-between">
+                <div>
+                    <h1 className="text-4xl md:text-5xl font-extrabold mb-2 leading-tight">Welcome, {user?.fullName || 'Student'}!</h1>
+                    <p className="text-blue-100 text-lg md:text-xl mb-6">Your personalized learning journey starts here. Explore new courses and manage your progress.</p>
+                    <button
+                        onClick={() => onNavigate('/courses')}
+                        className="bg-white text-blue-700 px-6 py-3 rounded-full text-lg font-semibold hover:bg-blue-100 transition-colors shadow-md"
+                    >
+                        Browse Courses
+                    </button>
+                </div>
                 {onLogout && (
                     <button 
                         onClick={onLogout}
-                        className="text-gray-600 hover:text-red-600 transition-colors px-4 py-2 rounded-md hover:bg-gray-100"
+                        className="mt-6 md:mt-0 md:ml-8 text-blue-100 hover:text-white transition-colors px-4 py-2 rounded-md border border-blue-300 hover:border-white"
                     >
                         Logout
                     </button>
                 )}
             </div>
-            
-            <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 mb-8">
-                <h2 className="text-xl font-semibold text-gray-800 mb-4">Welcome back, Student!</h2>
-                <p className="text-gray-600">Here's a quick overview of your academic progress this semester.</p>
-            </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {/* Existing dashboard highlight cards (Adjusted spacing if needed) */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
                 <div className="bg-white p-6 rounded-xl shadow-sm border border-blue-100 flex flex-col">
                     <h3 className="text-sm font-medium text-blue-600 uppercase tracking-wider mb-2">Enrolled Courses</h3>
                     <div className="flex items-end mt-auto">
@@ -51,7 +56,21 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate, onLogout }) => {
                 </div>
             </div>
 
-            {/* More dashboard sections could go here */}
+            {/* Suggested Courses Section */}
+            <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 mb-8">
+                <h2 className="text-xl font-semibold text-gray-800 mb-4">Suggested Courses</h2>
+                <p className="text-gray-600">Based on your interests and academic history.</p>
+                {/* Placeholder for suggested course cards/list */}
+                <div className="mt-4 text-gray-400 italic">No suggestions available yet.</div>
+            </div>
+
+            {/* Progress Overview Section */}
+            <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 mb-8">
+                <h2 className="text-xl font-semibold text-gray-800 mb-4">Progress Overview</h2>
+                <p className="text-gray-600">Track your achievements and see how far you've come!</p>
+                {/* Placeholder for gamified progress bar/achievements */}
+                <div className="mt-4 text-gray-400 italic">No progress data available yet.</div>
+            </div>
         </div>
     );
 };
