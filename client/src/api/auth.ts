@@ -15,6 +15,7 @@ export interface User {
 // Structure of 'data' in a successful auth response
 export interface AuthData {
     user: User;
+    token: string;
     profile?: any; // Profile data is returned on register
 }
 
@@ -22,6 +23,7 @@ export interface AuthData {
 export interface LoginCredentials {
     email: string;
     password: string;
+    
 }
 
 // Register Request Payload

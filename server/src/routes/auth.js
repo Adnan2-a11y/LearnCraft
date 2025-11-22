@@ -5,6 +5,7 @@ import User from '../models/Users.js';
 import Student from '../models/Student.js';
 import Teacher from '../models/Teacher.js';
 import { registerLimiter, loginLimiter } from '../middleware/rateLimit.js';
+import { authMiddleware } from '../middleware/auth.js';
 import { generateToken } from '../utils/jwt.js';
 
 const router = express.Router();
@@ -171,6 +172,29 @@ router.post('/login',loginLimiter, [
             message: 'Server error during login',
             error: error.message
         });
+    }
+});
+
+router.get('/me', authMiddleware, async (req, res) => {
+    try{
+        const user = await User.findById(req.user.id).select('-password');
+        if (!user) {
+            return res.status(404).json({ success: false, message: 'User not found after authentication' });
+        }
+
+        res.status(200).json({
+            success: true,
+            message: 'User re-authenticated successfully',
+            user: { // Return essential user data to the frontend
+                id: user._id,
+                username: user.username,
+                email: user.email,
+                role: user.role
+    }
+        });
+    } catch (error) {
+        console.error("❌ Re-authentication Error:", error);
+        res.status(500).json({ success: false, message: 'Server error fetching user data' });
     }
 });
 router.post('/logout', (req, res) => {

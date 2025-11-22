@@ -1,8 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { User } from '../api/auth';
 import { Course, coursesApi, GetCoursesParams, CourseResponse } from '../api/courses';
 import { CourseList } from '../components/CourseList';
 import { CourseAddForm } from '../components/CourseAddForm';
+import { CourseEditForm } from '../components/CourseEditForm'; // Import the new edit form
 
 interface CoursesPageProps {
     user: User | null;
@@ -13,6 +14,7 @@ export const CoursesPage: React.FC<CoursesPageProps> = ({ user }) => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [showAddForm, setShowAddForm] = useState(false);
+    const [editingCourse, setEditingCourse] = useState<Course | null>(null); // State for the course being edited
     const [searchTerm, setSearchTerm] = useState(''); // Holds current input value
     const [currentSearchQuery, setCurrentSearchQuery] = useState(''); // Holds the term used for the *last* search
 
@@ -40,8 +42,8 @@ export const CoursesPage: React.FC<CoursesPageProps> = ({ user }) => {
 
     const creditsOptions = [1, 2, 3, 4];
 
-    // IMPORTANT FUNCTION: fetchCourses now uses all params
-    const fetchCourses = async () => {
+    // fetchCourses remains the same
+    const fetchCourses = useCallback(async () => {
         setLoading(true);
         setError(null);
         const params: GetCoursesParams = {
@@ -68,12 +70,12 @@ export const CoursesPage: React.FC<CoursesPageProps> = ({ user }) => {
         } finally {
             setLoading(false);
         }
-    };
+    }, [currentSearchQuery, department, semester, credit, page]);
 
-    // IMPORTANT FUNCTION: useEffect to trigger fetches
+
     useEffect(() => {
         fetchCourses();
-    }, [currentSearchQuery, department, semester, credit, page]); // Depend on all filters and page
+    }, [fetchCourses]);
 
     // Handler for the search button click
     const handleSearch = () => {
@@ -99,16 +101,33 @@ export const CoursesPage: React.FC<CoursesPageProps> = ({ user }) => {
     };
 
     const handleCourseAdded = () => {
-        fetchCourses(); // Refresh with current filters
+        fetchCourses();
         setShowAddForm(false);
     };
+    
+    // Handlers for editing
+    const handleEditClick = (course: Course) => {
+        setEditingCourse(course);
+        setShowAddForm(false); // Close add form if open
+    };
+
+    const handleCourseUpdated = () => {
+        setEditingCourse(null);
+        fetchCourses(); // Refresh the list
+    };
+
 
     const handleDeleteCourse = async (id: string) => {
         if (window.confirm('Are you sure you want to delete this course? This action cannot be undone.')) {
             try {
-                await coursesApi.delete(id);
-                // Optimistic update
-                setCourses(prevCourses => prevCourses.filter(course => course._id !== id));
+                const response = await coursesApi.delete(id);
+                if (response.success) {
+                    // Refetch courses to update total count and pagination correctly
+                    fetchCourses();
+                } else {
+                    // Show specific error from backend (e.g., authorization failure)
+                    alert(`Deletion failed: ${response.message}`);
+                }
             } catch (err: any) {
                 alert(err.message || 'Failed to delete course.');
             }
@@ -273,6 +292,16 @@ export const CoursesPage: React.FC<CoursesPageProps> = ({ user }) => {
                 </div>
             )}
 
+            {editingCourse && isTeacher && (
+                 <div className="animate-fade-in-down">
+                    <CourseEditForm 
+                        course={editingCourse}
+                        onCourseUpdated={handleCourseUpdated}
+                        onCancel={() => setEditingCourse(null)}
+                    />
+                </div>
+            )}
+
             {loading ? (
                 <div className="flex flex-col justify-center items-center py-20">
                     <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-600 mb-4"></div>
@@ -301,6 +330,7 @@ export const CoursesPage: React.FC<CoursesPageProps> = ({ user }) => {
                         courses={courses}
                         userRole={user?.role}
                         onDelete={handleDeleteCourse}
+                        onEdit={handleEditClick} // Pass the edit handler
                     />
                 )
             )}

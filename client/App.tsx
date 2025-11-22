@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import { Header } from './src/components/Header';
 import { Footer } from './src/components/Footer';
 import { LandingPage } from './src/pages/LandingPage';
@@ -8,9 +9,13 @@ import { CoursesPage } from './src/pages/CoursesPage';
 import EventPage from './src/pages/EventPage';
 import { User } from './src/api/auth';
 
+axios.defaults.baseURL = 'http://localhost:5000/api';
+axios.defaults.withCredentials = true;
+
 function App() {
     const [user, setUser] = useState<User | null>(null);
     const [currentPath, setCurrentPath] = useState(window.location.pathname || '/');
+    const [loadingAuth, setLoadingAuth] = useState(true);
 
     useEffect(() => {
         const onLocationChange = () => {
@@ -25,6 +30,25 @@ function App() {
         window.history.pushState({}, '', path);
         setCurrentPath(path);
     };
+    
+    useEffect (() => {
+        const loadUserFromCookie = async () => {
+            try {
+                const response = await axios.get('/auth/me');
+                const fetchUser = response.data.user;
+                setUser(fetchUser);
+            
+            
+        }catch (error){
+            console.error('Error loading user from cookie', error);
+            setUser(null);
+        }finally {
+            setLoadingAuth(false);
+        }
+    };
+        loadUserFromCookie();
+    }, []);
+    
 
     const handleLoginSuccess = (data: { user: User }) => {
         setUser(data.user);

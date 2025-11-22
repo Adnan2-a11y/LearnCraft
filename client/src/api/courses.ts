@@ -16,6 +16,7 @@ export interface Course {
 }
 
 export type CreateCourseData = Omit<Course, '_id' | 'teacher'>;
+export type UpdateCourseData = Partial<CreateCourseData>;
 
 export interface CourseResponse{
     courses : Course[];
@@ -75,9 +76,13 @@ export const coursesApi = {
         });
     },
 
-    /**
-     * Delete a course by ID.
-     */
+    update: (id: string, data: UpdateCourseData): Promise<ApiResponse<Course>> => {
+        return apiClient<Course>(`${COURSES_URL}/${id}`, {
+            method: 'PUT',
+            body: JSON.stringify(data)
+        });
+    },
+    
     delete: (id: string): Promise<ApiResponse<void>> => {
         return apiClient<void>(`${COURSES_URL}/${id}`, {
             method: 'DELETE'
