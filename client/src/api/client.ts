@@ -1,6 +1,6 @@
 
 // Default to localhost:5000/api if not set in environment variables
-export const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+export const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
 export interface ApiResponse<T = any> {
     success: boolean;

@@ -9,7 +9,7 @@ import eventRoutes from './routes/event.js';
 import courseRoutes from './routes/courses.js';
 import authRoute from './routes/auth.js';
 //import dashboardRoutes from "./routes/api/dashboard.js";
-import { globalLimiter } from './middleware/rateLimit.js'; 
+import { globalLimiter } from './middleware/rateLimit.js';
 
 const app = express();
 
